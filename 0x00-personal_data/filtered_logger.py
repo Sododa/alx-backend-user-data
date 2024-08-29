@@ -76,7 +76,7 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """Returns a connector to the database
-    (mysql.connector.connect 
+    (mysql.connector.conne
     """
     # Get the environment variables for the database credentials
     db_host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
