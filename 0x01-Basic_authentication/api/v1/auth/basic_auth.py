@@ -98,7 +98,7 @@ class BasicAuth(Auth):
         """
         # Get the authorization
         auth_header = self.authorization_header(request)
-        #the Base64 encoded string from th
+        # the Base64 encoded string from th
         b64_auth_header = self.extract_base64_authorization_header(auth_header)
         # the Base64 g
         dec_header = self.decode_base64_authorization_header(b64_auth_header)
