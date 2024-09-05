@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-The API
+Route module for the API
 """
 
 
@@ -10,6 +10,7 @@ from typing import Tuple
 
 from flask import Flask, abort, jsonify, request
 from flask_cors import CORS, cross_origin
+from flask import Flask, session
 
 from api.v1.auth.auth import Auth
 from api.v1.auth.basic_auth import BasicAuth
@@ -52,14 +53,28 @@ def not_found(error) -> str:
 
 @app.errorhandler(401)
 def unauthorized(error: Exception) -> Tuple[jsonify, int]:
-    """Error handler for unauthorized
+    """Error handler for unauthorized requests.
+
+    Args:
+        error (Exception): The error raised.
+
+    Returns:
+        Tuple[jsonify, int]: JSON response with the error message and a 401
+        status code.
     """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
 def forbidden(error: Exception) -> Tuple[jsonify, int]:
-    """Error handler for unaut.
+    """Error handler for unauthorized requests.
+
+    Args:
+        error (Exception): The error raised.
+
+    Returns:
+        Tuple[jsonify, int]: JSON response with the error message and a 401
+        status code.
     """
     return jsonify({"error": "Forbidden"}), 403
 
@@ -77,22 +92,22 @@ def handle_request():
                       '/api/v1/unauthorized/',
                       '/api/v1/forbidden/',
                       '/api/v1/auth_session/login/']
-    # if request do nothing
-    # You must auth instance
+    # if request.path is not part of the list above, do nothing
+    # You must use the method require_auth from the auth instance
     if not auth.require_auth(request.path, excluded_paths):
         return
-    # If auth.session_cookie(request)
-    # return None you must use abort
+    # If auth.authorization_header(request) and auth.session_cookie(request)
+    # return None, raise the error, 401 - you must use abort
     auth_header = auth.authorization_header(request)
     session_cookie = auth.session_cookie(request)
     if auth_header is None and session_cookie is None:
         abort(401)
-    # If auth.current you
+    # If auth.current_user(request) returns None, raise the error 403 - you
     # must use abort
     user = auth.current_user(request)
     if user is None:
         abort(403)
-    # Assign to request.current_user
+    # Assign the result of auth.current_user(request) to request.current_user
     request.current_user = user
 
 
