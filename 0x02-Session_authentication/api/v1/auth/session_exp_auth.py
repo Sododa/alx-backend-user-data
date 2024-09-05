@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""session expiration
+"""Module for session expiration
 """
 
 
@@ -11,12 +11,15 @@ from .session_auth import SessionAuth
 
 class SessionExpAuth(SessionAuth):
     """
-    SessionExpAuth is a class that extends the functionality
+    SessionExpAuth is a class that extends the functionality of the
+    SessionAuth class.
+    It adds session expiration to the authentication mechanism.
     """
 
     def __init__(self):
         """
         Constructor for the SessionExpAuth class.
+        Initializes the session_duration attribute.
         """
         # Call the superclass's constructor
         super().__init__()
@@ -28,7 +31,18 @@ class SessionExpAuth(SessionAuth):
         self.session_duration = int(os.environ.get("SESSION_DURATION", 0))
 
     def create_session(self, user_id: int) -> str:
-        """Creates a new session for a user and assigns a sessin
+        """Creates a new session for a user and assigns a session ID.
+
+        The session ID is stored in the user_id_by_session_id dictionary with
+        the user_id and creation time as values.
+        The session has an expiration time defined by the session_duration
+        attribute.
+
+        Args:
+            user_id (int): The id of the user to create a session for
+
+        Returns:
+            str: The session ID if the session was successfully created, None
         otherwise
         """
         # Call the create_session method of the superclass
@@ -48,7 +62,17 @@ class SessionExpAuth(SessionAuth):
         return sessn_id
 
     def user_id_for_session_id(self, session_id: str) -> int:
-        """Gets the user_id associated
+        """Gets the user_id associated with a session ID.
+
+        The session is considered valid if it was created within the
+        session_duration time.
+
+        Args:
+            session_id (str): The session ID to get the user_id for
+
+        Returns:
+            int: The user_id associated with the session ID if the session is
+        valid, None otherwise
         """
         # If the session_id is None, return None
         if session_id is None:
@@ -70,16 +94,16 @@ class SessionExpAuth(SessionAuth):
         # return None
         if created_at is None:
             return None
-        # Check the session has expired
+        # Check if the session has expired
         now = dt.now()
         if created_at + timedelta(seconds=self.session_duration) < now:
             return None
-        # Calculate expiration date
+        # Calculate the session expiration date
         expires_at = session_dict["created_at"] + \
             timedelta(seconds=self.session_duration)
-        # Return expiration date
+        # Return None if the current time is past the expiration date
         if expires_at < dt.now():
             return None
-        # Return the session
-        # has expired
+        # Return the user_id from the session dictionary if the session
+        # has not expired
         return session_dict.get("user_id", None)
